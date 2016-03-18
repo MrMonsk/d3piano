@@ -1,0 +1,21 @@
+{
+  "name": "d3piano",
+  "description": "",
+  "main": "index.js",
+  "authors": [
+    "bcrowell <brettcrowell@gmail.com>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/brettcrowell/d3piano",
+  "moduleType": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "midi-js-soundfonts": "git@github.com:gleitz/midi-js-soundfonts.git"
+  }
+}

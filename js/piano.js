@@ -1,5 +1,20 @@
 (function(){
 
+  // MIDI.js
+
+  MIDI.loadPlugin({
+    soundfontUrl: "./bower_components/midi-js-soundfonts/FluidR3_GM/",
+    instrument: "acoustic_grand_piano",
+    onprogress: function (state, progress) {
+      console.log(state, progress);
+    },
+    onsuccess: function() {
+      console.log("loaded");
+    }
+  });
+
+  // PIANO
+
   var keyHeight = 200;
   var keyWidth = keyHeight * .2;
   var blackKeyHeight = keyHeight * 0.65;
@@ -11,6 +26,21 @@
   var sortedNoteData = notes.sort(function(a, b){
     return (b.isBlack) ? -1 : 1;
   });
+
+  function playNote(note){
+
+    note.active = true;
+
+    var delay = 0; // play one note every quarter second
+    var note = note.keyNumber + 20; // the MIDI note
+    var velocity = 127; // how hard the note hits
+
+    // play the note
+    MIDI.setVolume(0, 127);
+    MIDI.noteOn(0, note, velocity, delay);
+    MIDI.noteOff(0, note, delay + 0.75);
+
+  }
 
   function draw(){
 
@@ -39,23 +69,24 @@
         height: function(d,i){
           return (d.isBlack) ? blackKeyHeight : keyHeight;
         },
-        stroke: "#AAAAAA",
+        stroke: "#AAAAAA"
 
       })
       .on({
         mouseenter: function(note){
           note.hover = true;
           if(mouseIsDown){
-            note.active = true;
+            playNote(note);
           }
           draw();
         },
         mouseleave: function(note){
           note.hover = false;
+          note.active = false;
           draw();
         },
         mousedown: function(note){
-          note.active = true;
+          playNote(note);
           mouseIsDown = true;
           draw();
         },
