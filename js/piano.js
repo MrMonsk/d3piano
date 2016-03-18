@@ -6,6 +6,8 @@
   var blackKeyWidth = keyWidth * 0.5;
   var rounding = keyWidth * 0.1;
 
+  var mouseIsDown = false;
+
   var sortedNoteData = notes.sort(function(a, b){
     return (b.isBlack) ? -1 : 1;
   });
@@ -43,10 +45,27 @@
       .on({
         mouseenter: function(note){
           note.hover = true;
+          if(mouseIsDown){
+            note.active = true;
+          }
           draw();
         },
         mouseleave: function(note){
           note.hover = false;
+          draw();
+        },
+        mousedown: function(note){
+          note.active = true;
+          mouseIsDown = true;
+          draw();
+        },
+        mouseup: function(note){
+          note.active = false;
+          mouseIsDown = false;
+          draw();
+        },
+        mouseout: function(note){
+          note.active = false;
           draw();
         }
       });
@@ -54,10 +73,18 @@
     keys
       .attr({
         fill: function(d){
+
+          if(d.active){
+            return "#ccffcc";
+          }
+          if(d.color){
+            return d.color;
+          }
+
           if(d.isBlack){
             return (d.hover) ? '#444444' : '#000000';
           } else {
-            return (d.hover) ? '#eeeeee' : '#ffffff';
+            return (d.hover) ? '#f2f2f2' : '#ffffff';
           }
         }
       });
