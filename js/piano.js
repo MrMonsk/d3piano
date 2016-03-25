@@ -1,46 +1,72 @@
 (function(){
 
+  // GLOBALS /////////////////////////////////////////////////////////////////
+
+  var keyHeight = 200;
+  var keyWidth = keyHeight * .2;
+  var blackKeyHeight = keyHeight * 0.65;
+  var blackKeyWidth = keyWidth * 0.5;
+  var rounding = keyWidth * 0.1;
+
+  var mouseIsDown = false;
+
+  addNoteToVexflow("b/4", "wr");
+
+  // LISTENERS ///////////////////////////////////////////////////////////////
+
+  function playNote(note){
+
+    note.active = true;
+
+    var delay = 0; // play one note every quarter second
+    var midiNumber = note.keyNumber + 20; // the MIDI note
+    var velocity = 127; // how hard the note hits
+
+    // play the note
+    MIDI.setVolume(0, 127);
+    MIDI.noteOn(0, midiNumber, velocity, delay);
+    MIDI.noteOff(0, midiNumber, delay + 0.75);
+
+    // show the note on vexflow
+    addNoteToVexflow(note.letterName);
+
+  }
+
   // VEXFLOW /////////////////////////////////////////////////////////////////
 
-  var canvas = document.getElementById("vexflow");
-  var renderer = new Vex.Flow.Renderer(canvas, Vex.Flow.Renderer.Backends.CANVAS);
+  function addNoteToVexflow(letterName, type){
 
-  var ctx = renderer.getContext();
-  var stave = new Vex.Flow.Stave(10, 0, 500);
-  stave.addClef("treble").setContext(ctx).draw();
+    type = (type) ? type : "w";
+    letterName = (letterName.lastIndexOf(",") === -1) ? letterName : letterName.split(",")[1];
 
-  // Create the notes
-  var vexNotes = [
-    // A quarter-note C.
-    new Vex.Flow.StaveNote({ keys: ["c/4"], duration: "q" }),
+    console.log(letterName);
 
-    // A quarter-note D.
-    new Vex.Flow.StaveNote({ keys: ["d/4"], duration: "q" }),
+    var canvas = document.getElementById("vexflow");
 
-    // A quarter-note rest. Note that the key (b/4) specifies the vertical
-    // position of the rest.
-    new Vex.Flow.StaveNote({ keys: ["b/4"], duration: "qr" }),
+    var renderer = new Vex.Flow.Renderer(canvas, Vex.Flow.Renderer.Backends.CANVAS);
+    var ctx = renderer.getContext();
 
-    // A C-Major chord.
-    new Vex.Flow.StaveNote({ keys: ["c/4", "e/4", "g/4"], duration: "q" })
-  ];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Create a voice in 4/4
-  var voice = new Vex.Flow.Voice({
-    num_beats: 4,
-    beat_value: 4,
-    resolution: Vex.Flow.RESOLUTION
-  });
+    var stave = new Vex.Flow.Stave(10, 0, 500);
+    stave.addClef("treble").setContext(ctx).draw();
 
-  // Add notes to voice
-  voice.addTickables(vexNotes);
+    // Create a voice in 4/4
+    var voice = new Vex.Flow.Voice({
+      num_beats: 4,
+      beat_value: 4,
+      resolution: Vex.Flow.RESOLUTION
+    });
 
-  // Format and justify the notes to 500 pixels
-  var formatter = new Vex.Flow.Formatter().
-    joinVoices([voice]).format([voice], 500);
+    // Add notes to voice
+    voice.addTickables([ new Vex.Flow.StaveNote({ keys: [letterName], duration: type }) ]);
 
-  // Render voice
-  voice.draw(ctx, stave);
+    // Format and justify the notes to 500 pixels
+    var formatter = new Vex.Flow.Formatter().joinVoices([voice]).format([voice], 500);
+
+    voice.draw(ctx, stave);
+
+  }
 
   // MIDI.js /////////////////////////////////////////////////////////////////
 
@@ -57,32 +83,9 @@
 
   // PIANO /////////////////////////////////////////////////////////////////
 
-  var keyHeight = 200;
-  var keyWidth = keyHeight * .2;
-  var blackKeyHeight = keyHeight * 0.65;
-  var blackKeyWidth = keyWidth * 0.5;
-  var rounding = keyWidth * 0.1;
-
-  var mouseIsDown = false;
-
   var sortedNoteData = notes.sort(function(a, b){
     return (b.isBlack) ? -1 : 1;
   });
-
-  function playNote(note){
-
-    note.active = true;
-
-    var delay = 0; // play one note every quarter second
-    var note = note.keyNumber + 20; // the MIDI note
-    var velocity = 127; // how hard the note hits
-
-    // play the note
-    MIDI.setVolume(0, 127);
-    MIDI.noteOn(0, note, velocity, delay);
-    MIDI.noteOff(0, note, delay + 0.75);
-
-  }
 
   function draw(){
 
