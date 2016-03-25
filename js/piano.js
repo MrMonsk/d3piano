@@ -2,15 +2,16 @@
 
   // GLOBALS /////////////////////////////////////////////////////////////////
 
-  var keyHeight = 200;
+  var keyHeight = 100;
   var keyWidth = keyHeight * .2;
   var blackKeyHeight = keyHeight * 0.65;
   var blackKeyWidth = keyWidth * 0.5;
   var rounding = keyWidth * 0.1;
+  var treble = d3.range(21,69);
+
+  // STATE ///////////////////////////////////////////////////////////////////
 
   var mouseIsDown = false;
-
-  addNoteToVexflow("b/4", "wr");
 
   // LISTENERS ///////////////////////////////////////////////////////////////
 
@@ -28,18 +29,18 @@
     MIDI.noteOff(0, midiNumber, delay + 0.75);
 
     // show the note on vexflow
-    addNoteToVexflow(note.letterName);
+    addNoteToVexflow(note);
 
   }
 
   // VEXFLOW /////////////////////////////////////////////////////////////////
 
-  function addNoteToVexflow(letterName, type){
+  function addNoteToVexflow(note, type){
 
     type = (type) ? type : "w";
-    letterName = (letterName.lastIndexOf(",") === -1) ? letterName : letterName.split(",")[1];
 
-    console.log(letterName);
+    var letterName = (note.letterName.lastIndexOf(",") === -1) ? note.letterName : note.letterName.split(",")[1];
+    var clef = (note.keyNumber > 39) ? "treble" : "bass";
 
     var canvas = document.getElementById("vexflow");
 
@@ -49,7 +50,7 @@
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     var stave = new Vex.Flow.Stave(10, 0, 500);
-    stave.addClef("treble").setContext(ctx).draw();
+    stave.addClef(clef).setContext(ctx).draw();
 
     // Create a voice in 4/4
     var voice = new Vex.Flow.Voice({
@@ -59,7 +60,7 @@
     });
 
     // Add notes to voice
-    voice.addTickables([ new Vex.Flow.StaveNote({ keys: [letterName], duration: type }) ]);
+    voice.addTickables([ new Vex.Flow.StaveNote({ clef: clef, keys: [letterName], duration: type }) ]);
 
     // Format and justify the notes to 500 pixels
     var formatter = new Vex.Flow.Formatter().joinVoices([voice]).format([voice], 500);
@@ -67,6 +68,8 @@
     voice.draw(ctx, stave);
 
   }
+
+  addNoteToVexflow({ keyNumber: 51, letterName: "b/4" }, "wr");
 
   // MIDI.js /////////////////////////////////////////////////////////////////
 
