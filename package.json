@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/brettcrowell/d3piano#readme",
   "dependencies": {
-    "midi": "git+https://github.com/mudcube/MIDI.js.git"
+    "midi": "git+https://github.com/mudcube/MIDI.js.git",
+    "vexflow": "^1.2.45"
   }
 }
