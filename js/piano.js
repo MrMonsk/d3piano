@@ -106,7 +106,7 @@
         fill: function(d){
 
           if(d.active){
-            return "#ccffcc";
+            return "#ccccff";
           }
           if(d.color){
             return d.color;
