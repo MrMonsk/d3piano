@@ -33,10 +33,22 @@
 
     clearActiveNotes();
 
-    var eligibleNotes = notes.filter(function(it){ return it.keyNumber > 20 && it.keyNumber < 65 });
+    if(document.getElementById("chord").checked){
 
-    for(var i = 0; i < (Math.random() * 3); i ++){
-      activeNotes.push(eligibleNotes[Math.floor(Math.random() * eligibleNotes.length)])
+      var randomChord = chords[Math.floor(Math.random() * chords.length)];
+
+      randomChord.keyNumbers.split(",").forEach(function(keyNumber){
+        activeNotes.push(notes.find(function(it){ return it.keyNumber == keyNumber; }));
+      });
+
+    } else {
+
+      var eligibleNotes = notes.filter(function(it){ return it.keyNumber > 20 && it.keyNumber < 65 });
+
+      for(var i = 0; i < (Math.random() * 3); i ++){
+        activeNotes.push(eligibleNotes[Math.floor(Math.random() * eligibleNotes.length)])
+      }
+
     }
 
     redraw();
@@ -61,7 +73,7 @@
     activeNotes.forEach(function(note){ playNote(note); });
 
     document.getElementById("activeNotes").value =
-        activeNotes.map(function(note){ return note.letterName; }).join(",");
+        activeNotes.map(function(note){ return note.keyNumber; }).join(",");
 
   }
 
