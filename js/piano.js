@@ -9,15 +9,42 @@
   var rounding = keyWidth * 0.1;
   var treble = d3.range(21,69);
 
+  var sortedNoteData = notes.sort(function(a, b){
+    return (b.isBlack) ? -1 : 1;
+  });
+
   // STATE ///////////////////////////////////////////////////////////////////
 
+  var activeNotes = [];
   var mouseIsDown = false;
 
   // LISTENERS ///////////////////////////////////////////////////////////////
 
-  function playNote(note){
+  function redraw(){
 
-    note.active = true;
+    redrawPiano();
+    redrawStaffs();
+
+    activeNotes.forEach(function(note){ playNote(note); });
+
+  }
+
+  redraw();
+
+  // MIDI.js /////////////////////////////////////////////////////////////////
+
+  MIDI.loadPlugin({
+    soundfontUrl: "./bower_components/midi-js-soundfonts/FluidR3_GM/",
+    instrument: "acoustic_grand_piano",
+    onprogress: function (state, progress) {
+      console.log(state, progress);
+    },
+    onsuccess: function() {
+      console.log("loaded");
+    }
+  });
+
+  function playNote(note){
 
     var delay = 0; // play one note every quarter second
     var midiNumber = note.keyNumber + 20; // the MIDI note
@@ -28,20 +55,13 @@
     MIDI.noteOn(0, midiNumber, velocity, delay);
     MIDI.noteOff(0, midiNumber, delay + 0.75);
 
-    // show the note on vexflow
-    redrawStaffs(note);
-
   }
 
   // VEXFLOW /////////////////////////////////////////////////////////////////
 
-  function redrawStaffs(note, type){
+  function redrawStaffs(){
 
     // https://github.com/0xfe/vexflow/issues/134
-
-    type = (type) ? type : "w";
-
-    var letterName = (note.letterName.lastIndexOf(",") === -1) ? note.letterName : note.letterName.split(",")[1];
 
     var canvas = document.getElementById("vexflow");
 
@@ -65,57 +85,64 @@
     lineLeft.setContext(ctx).draw();
     lineRight.setContext(ctx).draw();
 
-    // Create a voice in 4/4
-    var voice = new Vex.Flow.Voice({
+    var topVoice = new Vex.Flow.Voice({
+
       num_beats: 4,
       beat_value: 4,
       resolution: Vex.Flow.RESOLUTION
+
     });
 
-    var activeStaff, clef;
+    var bottomVoice = new Vex.Flow.Voice({
 
-    if(note.keyNumber > 39){
+      num_beats: 4,
+      beat_value: 4,
+      resolution: Vex.Flow.RESOLUTION
 
-      clef = "treble";
-      activeStaff = topStaff;
+    });
 
-    } else {
+    var notesToLetterNames = function(note){
+      return (note.letterName.lastIndexOf(",") === -1) ? note.letterName : note.letterName.split(",")[1];
+    };
 
-      clef = "bass";
-      activeStaff = bottomStaff
+    var type = (activeNotes.length > 0) ? "w" : "wr";
+
+    var topStaffNotes = activeNotes.filter(function(it){ return it.keyNumber > 39; });
+    var bottomStaffNotes = activeNotes.filter(function(it){ return it.keyNumber <= 39; });
+
+    if(topStaffNotes.length > 0){
+
+      topVoice.addTickables([ new Vex.Flow.StaveNote({
+
+        clef: "treble",
+        keys: topStaffNotes.map(notesToLetterNames),
+        duration: type
+
+      }) ]);
+
+      new Vex.Flow.Formatter().joinVoices([topVoice]).format([topVoice], 500);
+      topVoice.draw(ctx, topStaff);
 
     }
 
-    // Add notes to voice
-    voice.addTickables([ new Vex.Flow.StaveNote({ clef: clef, keys: [letterName], duration: type }) ]);
+    if(bottomStaffNotes.length > 0){
 
-    // Format and justify the notes to 500 pixels
-    var formatter = new Vex.Flow.Formatter().joinVoices([voice]).format([voice], 500);
+      bottomVoice.addTickables([ new Vex.Flow.StaveNote({
 
-    voice.draw(ctx, activeStaff);
+        clef: "bass",
+        keys: bottomStaffNotes.map(notesToLetterNames),
+        duration: type
+
+      }) ]);
+
+      new Vex.Flow.Formatter().joinVoices([bottomVoice]).format([bottomVoice], 500);
+      bottomVoice.draw(ctx, bottomStaff);
+
+    }
 
   }
 
-  redrawStaffs({ keyNumber: 51, letterName: "b/4" }, "wr");
-
-  // MIDI.js /////////////////////////////////////////////////////////////////
-
-  MIDI.loadPlugin({
-    soundfontUrl: "./bower_components/midi-js-soundfonts/FluidR3_GM/",
-    instrument: "acoustic_grand_piano",
-    onprogress: function (state, progress) {
-      console.log(state, progress);
-    },
-    onsuccess: function() {
-      console.log("loaded");
-    }
-  });
-
   // PIANO /////////////////////////////////////////////////////////////////
-
-  var sortedNoteData = notes.sort(function(a, b){
-    return (b.isBlack) ? -1 : 1;
-  });
 
   function redrawPiano(){
 
@@ -149,30 +176,20 @@
       })
       .on({
         mouseenter: function(note){
-          note.hover = true;
-          if(mouseIsDown){
-            playNote(note);
-          }
-          redrawPiano();
         },
         mouseleave: function(note){
-          note.hover = false;
-          note.active = false;
-          redrawPiano();
         },
         mousedown: function(note){
-          playNote(note);
+          if(activeNotes.lastIndexOf(note) < 0){
+            activeNotes.push(note);
+          }
           mouseIsDown = true;
-          redrawPiano();
+          redraw();
         },
         mouseup: function(note){
-          note.active = false;
           mouseIsDown = false;
-          redrawPiano();
         },
         mouseout: function(note){
-          note.active = false;
-          redrawPiano();
         }
       });
 
@@ -180,11 +197,8 @@
       .attr({
         fill: function(d){
 
-          if(d.active){
+          if(activeNotes.lastIndexOf(d) > -1){
             return "#ccccff";
-          }
-          if(d.color){
-            return d.color;
           }
 
           if(d.isBlack){
@@ -198,8 +212,6 @@
     keys.exit().remove();
 
   }
-
-  redrawPiano();
 
 })();
 
