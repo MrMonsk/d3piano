@@ -188,6 +188,8 @@
         mousedown: function(note){
           if(activeNotes.lastIndexOf(note) < 0){
             activeNotes.push(note);
+          } else {
+            activeNotes.splice(activeNotes.lastIndexOf(note), 1);
           }
           mouseIsDown = true;
           redraw();
