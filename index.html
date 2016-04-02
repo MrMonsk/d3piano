@@ -1,10 +1,41 @@
 <html>
     <head>
+
+        <!-- polyfill -->
+        <script src="./node_modules/midi/inc/shim/Base64.js" type="text/javascript"></script>
+        <script src="./node_modules/midi/inc/shim/Base64binary.js" type="text/javascript"></script>
+        <script src="./node_modules/midi/inc/shim/WebAudioAPI.js" type="text/javascript"></script>
+        <!-- midi.js package -->
+        <script src="./node_modules/midi/js/midi/audioDetect.js" type="text/javascript"></script>
+        <script src="./node_modules/midi/js/midi/gm.js" type="text/javascript"></script>
+        <script src="./node_modules/midi/js/midi/loader.js" type="text/javascript"></script>
+        <script src="./node_modules/midi/js/midi/plugin.audiotag.js" type="text/javascript"></script>
+        <script src="./node_modules/midi/js/midi/plugin.webaudio.js" type="text/javascript"></script>
+        <script src="./node_modules/midi/js/midi/plugin.webmidi.js" type="text/javascript"></script>
+        <!-- utils -->
+        <script src="./node_modules/midi/js/util/dom_request_xhr.js" type="text/javascript"></script>
+        <script src="./node_modules/midi/js/util/dom_request_script.js" type="text/javascript"></script>
+
+        <!-- d3 -->
         <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+        <!-- vexflow -->
+        <script src="./node_modules/vexflow/releases/vexflow-min.js"></script>
+
+        <!-- app -->
         <script src="./js/notes.js"></script>
         <script src="./js/piano.js" defer></script>
+
     </head>
     <body>
-        <svg></svg>
+        <svg id="piano"></svg>
+        <br/>
+        <canvas id="vexflow" width="350px" height="300px"></canvas>
+        <br/>
+        Active Notes: <input type="text" id="activeNotes"/>
+        <br/><br/>
+        <button id="random">Random</button>
+        <button id="redraw">Redraw</button>
+        <button id="clear">Clear</button>
     </body>
 </html>

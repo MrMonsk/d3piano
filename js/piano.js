@@ -1,20 +1,188 @@
 (function(){
 
-  var keyHeight = 200;
+  // GLOBALS /////////////////////////////////////////////////////////////////
+
+  var keyHeight = 100;
   var keyWidth = keyHeight * .2;
   var blackKeyHeight = keyHeight * 0.65;
   var blackKeyWidth = keyWidth * 0.5;
   var rounding = keyWidth * 0.1;
-
-  var mouseIsDown = false;
+  var treble = d3.range(21,69);
 
   var sortedNoteData = notes.sort(function(a, b){
     return (b.isBlack) ? -1 : 1;
   });
 
-  function draw(){
+  // STATE ///////////////////////////////////////////////////////////////////
 
-    var svg = d3.select("svg").attr({
+  var activeNotes = [];
+  var mouseIsDown = false;
+
+  // LISTENERS ///////////////////////////////////////////////////////////////
+
+  document.getElementById("clear").onclick = clearActiveNotes;
+  document.getElementById("redraw").onclick = redraw;
+  document.getElementById("random").onclick = makeRandomSelection;
+
+  function clearActiveNotes(){
+    activeNotes = [];
+    redraw();
+  }
+
+  function makeRandomSelection(){
+
+    clearActiveNotes();
+
+    var eligibleNotes = notes.filter(function(it){ return it.keyNumber > 20 && it.keyNumber < 65 });
+
+    for(var i = 0; i < (Math.random() * 3); i ++){
+      activeNotes.push(eligibleNotes[Math.floor(Math.random() * eligibleNotes.length)])
+    }
+
+    redraw();
+
+  }
+
+  function redraw(note){
+
+    if(note && note.keyNumber){
+      if(activeNotes.lastIndexOf(note) < 0){
+        activeNotes.push(note);
+      } else {
+        activeNotes.splice(activeNotes.lastIndexOf(note), 1);
+      }
+    }
+
+    activeNotes = activeNotes.sort(function(a,b){ return a.keyNumber - b.keyNumber; });
+
+    redrawPiano();
+    redrawStaffs();
+
+    activeNotes.forEach(function(note){ playNote(note); });
+
+    document.getElementById("activeNotes").value =
+        activeNotes.map(function(note){ return note.letterName; }).join(",");
+
+  }
+
+  redraw();
+
+  // MIDI.js /////////////////////////////////////////////////////////////////
+
+  MIDI.loadPlugin({
+    soundfontUrl: "./bower_components/midi-js-soundfonts/FluidR3_GM/",
+    instrument: "acoustic_grand_piano",
+    onprogress: function (state, progress) {
+      console.log(state, progress);
+    },
+    onsuccess: function() {
+      console.log("loaded");
+    }
+  });
+
+  function playNote(note){
+
+    var delay = 0; // play one note every quarter second
+    var midiNumber = note.keyNumber + 20; // the MIDI note
+    var velocity = 127; // how hard the note hits
+
+    // play the note
+    MIDI.setVolume(0, 127);
+    MIDI.noteOn(0, midiNumber, velocity, delay);
+    MIDI.noteOff(0, midiNumber, delay + 0.75);
+
+  }
+
+  // VEXFLOW /////////////////////////////////////////////////////////////////
+
+  function redrawStaffs(){
+
+    // https://github.com/0xfe/vexflow/issues/134
+
+    var canvas = document.getElementById("vexflow");
+
+    var renderer = new Vex.Flow.Renderer(canvas, Vex.Flow.Renderer.Backends.CANVAS);
+    var ctx = renderer.getContext();
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    var topStaff = new Vex.Flow.Stave(20, 60, 300);
+    var bottomStaff = new Vex.Flow.Stave(20, 120, 300);
+
+    topStaff.addClef('treble');
+    bottomStaff.addClef('bass');
+
+    topStaff.setContext(ctx).draw();
+    bottomStaff.setContext(ctx).draw();
+
+    var lineLeft = new Vex.Flow.StaveConnector(topStaff, bottomStaff).setType(1);
+    var lineRight = new Vex.Flow.StaveConnector(topStaff, bottomStaff).setType(6);
+
+    lineLeft.setContext(ctx).draw();
+    lineRight.setContext(ctx).draw();
+
+    var topVoice = new Vex.Flow.Voice({
+
+      num_beats: 4,
+      beat_value: 4,
+      resolution: Vex.Flow.RESOLUTION
+
+    });
+
+    var bottomVoice = new Vex.Flow.Voice({
+
+      num_beats: 4,
+      beat_value: 4,
+      resolution: Vex.Flow.RESOLUTION
+
+    });
+
+    var notesToLetterNames = function(note){
+      return (note.letterName.lastIndexOf(",") === -1) ? note.letterName : note.letterName.split(",")[1];
+    };
+
+    var type = (activeNotes.length > 0) ? "w" : "wr";
+
+    var topStaffNotes = activeNotes.filter(function(it){ return it.keyNumber > 39; });
+    var bottomStaffNotes = activeNotes.filter(function(it){ return it.keyNumber <= 39; });
+
+    if(topStaffNotes.length > 0){
+
+      topVoice.addTickables([ new Vex.Flow.StaveNote({
+
+        clef: "treble",
+        keys: topStaffNotes.map(notesToLetterNames),
+        duration: type
+
+      }) ]);
+
+      new Vex.Flow.Formatter().joinVoices([topVoice]).format([topVoice], 500);
+      topVoice.draw(ctx, topStaff);
+
+    }
+
+    if(bottomStaffNotes.length > 0){
+
+      bottomVoice.addTickables([ new Vex.Flow.StaveNote({
+
+        clef: "bass",
+        keys: bottomStaffNotes.map(notesToLetterNames),
+        duration: type
+
+      }) ]);
+
+      new Vex.Flow.Formatter().joinVoices([bottomVoice]).format([bottomVoice], 500);
+      bottomVoice.draw(ctx, bottomStaff);
+
+    }
+
+  }
+
+  // PIANO /////////////////////////////////////////////////////////////////
+
+  function redrawPiano(){
+
+    var svg = d3.select("svg#piano").attr({
 
       width: keyWidth * sortedNoteData.filter(function(note){ return !note.isBlack; }).length,
       height: keyHeight
@@ -39,34 +207,22 @@
         height: function(d,i){
           return (d.isBlack) ? blackKeyHeight : keyHeight;
         },
-        stroke: "#AAAAAA",
+        stroke: "#AAAAAA"
 
       })
       .on({
         mouseenter: function(note){
-          note.hover = true;
-          if(mouseIsDown){
-            note.active = true;
-          }
-          draw();
         },
         mouseleave: function(note){
-          note.hover = false;
-          draw();
         },
         mousedown: function(note){
-          note.active = true;
           mouseIsDown = true;
-          draw();
+          redraw(note);
         },
         mouseup: function(note){
-          note.active = false;
           mouseIsDown = false;
-          draw();
         },
         mouseout: function(note){
-          note.active = false;
-          draw();
         }
       });
 
@@ -74,11 +230,8 @@
       .attr({
         fill: function(d){
 
-          if(d.active){
-            return "#ccffcc";
-          }
-          if(d.color){
-            return d.color;
+          if(activeNotes.lastIndexOf(d) > -1){
+            return "#ccccff";
           }
 
           if(d.isBlack){
@@ -92,8 +245,6 @@
     keys.exit().remove();
 
   }
-
-  draw();
 
 })();
 
