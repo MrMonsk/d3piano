@@ -16,6 +16,7 @@
   // STATE ///////////////////////////////////////////////////////////////////
 
   var activeNotes = [];
+  var hoveredNote = null;
   var mouseIsDown = false;
 
   // LISTENERS ///////////////////////////////////////////////////////////////
@@ -224,8 +225,12 @@
       })
       .on({
         mouseenter: function(note){
+          hoveredNote = note;
+          redrawPiano()
         },
         mouseleave: function(note){
+          hoveredNote = null;
+          redrawPiano()
         },
         mousedown: function(note){
           mouseIsDown = true;
@@ -235,6 +240,8 @@
           mouseIsDown = false;
         },
         mouseout: function(note){
+          hoveredNote = null;
+          redrawPiano()
         }
       });
 
@@ -247,9 +254,9 @@
           }
 
           if(d.isBlack){
-            return (d.hover) ? '#444444' : '#000000';
+            return (d === hoveredNote) ? '#444444' : '#000000';
           } else {
-            return (d.hover) ? '#f2f2f2' : '#ffffff';
+            return (d === hoveredNote) ? '#f2f2f2' : '#ffffff';
           }
         }
       });
