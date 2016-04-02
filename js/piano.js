@@ -20,7 +20,18 @@
 
   // LISTENERS ///////////////////////////////////////////////////////////////
 
-  function redraw(){
+  function redraw(note){
+
+    if(note){
+      if(activeNotes.lastIndexOf(note) < 0){
+        activeNotes.push(note);
+      } else {
+        activeNotes.splice(activeNotes.lastIndexOf(note), 1);
+      }
+    }
+
+    activeNotes = activeNotes.sort(function(a,b){ return a.keyNumber - b.keyNumber; });
+
 
     redrawPiano();
     redrawStaffs();
@@ -28,10 +39,7 @@
     activeNotes.forEach(function(note){ playNote(note); });
 
     document.getElementById("activeNotes").value =
-      activeNotes
-        .sort(function(a,b){ return a.keyNumber - b.keyNumber; })
-        .map(function(note){ return note.letterName; })
-        .join(",");
+        activeNotes.map(function(note){ return note.letterName; }).join(",");
 
   }
 
@@ -186,13 +194,8 @@
         mouseleave: function(note){
         },
         mousedown: function(note){
-          if(activeNotes.lastIndexOf(note) < 0){
-            activeNotes.push(note);
-          } else {
-            activeNotes.splice(activeNotes.lastIndexOf(note), 1);
-          }
           mouseIsDown = true;
-          redraw();
+          redraw(note);
         },
         mouseup: function(note){
           mouseIsDown = false;
