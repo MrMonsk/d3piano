@@ -20,9 +20,17 @@
 
   // LISTENERS ///////////////////////////////////////////////////////////////
 
+  document.getElementById("clear").onclick = clearActiveNotes;
+  document.getElementById("redraw").onclick = redraw;
+
+  function clearActiveNotes(){
+    activeNotes = [];
+    redraw();
+  }
+
   function redraw(note){
 
-    if(note){
+    if(note && note.keyNumber){
       if(activeNotes.lastIndexOf(note) < 0){
         activeNotes.push(note);
       } else {
@@ -31,7 +39,6 @@
     }
 
     activeNotes = activeNotes.sort(function(a,b){ return a.keyNumber - b.keyNumber; });
-
 
     redrawPiano();
     redrawStaffs();
