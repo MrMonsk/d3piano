@@ -29,13 +29,13 @@
     MIDI.noteOff(0, midiNumber, delay + 0.75);
 
     // show the note on vexflow
-    addNoteToVexflow(note);
+    redrawStaffs(note);
 
   }
 
   // VEXFLOW /////////////////////////////////////////////////////////////////
 
-  function addNoteToVexflow(note, type){
+  function redrawStaffs(note, type){
 
     // https://github.com/0xfe/vexflow/issues/134
 
@@ -96,7 +96,7 @@
 
   }
 
-  addNoteToVexflow({ keyNumber: 51, letterName: "b/4" }, "wr");
+  redrawStaffs({ keyNumber: 51, letterName: "b/4" }, "wr");
 
   // MIDI.js /////////////////////////////////////////////////////////////////
 
@@ -117,7 +117,7 @@
     return (b.isBlack) ? -1 : 1;
   });
 
-  function draw(){
+  function redrawPiano(){
 
     var svg = d3.select("svg#piano").attr({
 
@@ -153,26 +153,26 @@
           if(mouseIsDown){
             playNote(note);
           }
-          draw();
+          redrawPiano();
         },
         mouseleave: function(note){
           note.hover = false;
           note.active = false;
-          draw();
+          redrawPiano();
         },
         mousedown: function(note){
           playNote(note);
           mouseIsDown = true;
-          draw();
+          redrawPiano();
         },
         mouseup: function(note){
           note.active = false;
           mouseIsDown = false;
-          draw();
+          redrawPiano();
         },
         mouseout: function(note){
           note.active = false;
-          draw();
+          redrawPiano();
         }
       });
 
@@ -199,7 +199,7 @@
 
   }
 
-  draw();
+  redrawPiano();
 
 })();
 
