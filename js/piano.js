@@ -22,10 +22,25 @@
 
   document.getElementById("clear").onclick = clearActiveNotes;
   document.getElementById("redraw").onclick = redraw;
+  document.getElementById("random").onclick = makeRandomSelection;
 
   function clearActiveNotes(){
     activeNotes = [];
     redraw();
+  }
+
+  function makeRandomSelection(){
+
+    clearActiveNotes();
+
+    var eligibleNotes = notes.filter(function(it){ return it.keyNumber > 20 && it.keyNumber < 65 });
+
+    for(var i = 0; i < (Math.random() * 3); i ++){
+      activeNotes.push(eligibleNotes[Math.floor(Math.random() * eligibleNotes.length)])
+    }
+
+    redraw();
+
   }
 
   function redraw(note){
