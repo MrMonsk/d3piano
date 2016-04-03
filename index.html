@@ -33,15 +33,21 @@
         <br/>
         <canvas id="vexflow" width="350px" height="300px"></canvas>
         <br/>
-        Active Keys: <input type="text" id="activeKeys"/>
+        <button id="random">Random</button>
+        <input type="radio" name="randomize" value="chord" id="chord" checked> Chord
+        <input type="radio" name="randomize" value="random" id="note"> Notes
+        <br/><br/>
+        Active Notes:
+        <input type="text" size="4" name="activeNotes"/>
+        <input type="text" size="4" name="activeNotes"/>
+        <input type="text" size="4" name="activeNotes"/>
+        <input type="text" size="4" name="activeNotes"/>
         <br/><br/>
         Chord Root: <input type="text" id="chordRoot"/> Chord Type: <input type="text" id="chordType"/>
         <br/><br/>
         <button id="redraw">Redraw</button>
         <button id="clear">Clear</button>
         <br/><br/>
-        <button id="random">Random</button>
-        <input type="radio" name="randomize" value="chord" id="chord" checked> Chord
-        <input type="radio" name="randomize" value="random" id="note"> Notes
+        Active Keys: <input type="text" id="activeKeys"/>
     </body>
 </html>

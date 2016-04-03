@@ -71,7 +71,16 @@
     redrawPiano();
     redrawStaffs();
 
-    activeNotes.forEach(function(note){ playNote(note); });
+    var activeNoteTextfields = document.getElementsByName('activeNotes');
+
+    for(var i = 0; i < activeNoteTextfields.length; i++){
+      activeNoteTextfields[i].value = "";
+    }
+
+    activeNotes.forEach(function(note, i){
+      playNote(note);
+      activeNoteTextfields[i].value = note.letterName.replace(/\/\d/g, "");
+    });
 
     var activeNoteString = activeNotes.map(function(note){ return note.keyNumber; }).join(",");
 
