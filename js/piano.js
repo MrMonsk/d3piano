@@ -73,8 +73,16 @@
 
     activeNotes.forEach(function(note){ playNote(note); });
 
-    document.getElementById("activeNotes").value =
-        activeNotes.map(function(note){ return note.keyNumber; }).join(",");
+    var activeNoteString = activeNotes.map(function(note){ return note.keyNumber; }).join(",");
+
+    document.getElementById("activeKeys").value = activeNoteString;
+
+    var activeChord = chords.find(function(it){
+      return it.keyNumbers == activeNoteString;
+    });
+
+    document.getElementById("chordRoot").value = (activeChord) ? activeChord.letter : "";
+    document.getElementById("chordType").value = (activeChord) ? activeChord.type : "";
 
   }
 

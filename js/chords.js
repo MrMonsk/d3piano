@@ -1,17 +1,1 @@
-var chords = [{"letter": "c", "type": "major", "keyNumbers": "28,32,35"}, {
-  "letter": "c",
-  "type": "minor",
-  "keyNumbers": "28,31,35"
-}, {"letter": "c", "type": "diminished", "keyNumbers": "28,31,34"}, {
-  "letter": "c",
-  "type": "augmented",
-  "keyNumbers": "28,32,36"
-}, {"letter": "c", "type": "maj7", "keyNumbers": "28,32,35,39"}, {
-  "letter": "c",
-  "type": 7,
-  "keyNumbers": "28,32,35,38"
-}, {"letter": "c", "type": "m7", "keyNumbers": "28,31,35,38"}, {
-  "letter": "c",
-  "type": "d7",
-  "keyNumbers": "28,31,34,37"
-}, {"letter": "c", "type": "add6", "keyNumbers": "28,32,35,37"}];
+var chords = [{"letter":"c","type":"major","keyNumbers":"28,32,35"},{"letter":"c","type":"minor","keyNumbers":"28,31,35"},{"letter":"c","type":"diminished","keyNumbers":"28,31,34"},{"letter":"c","type":"augmented","keyNumbers":"28,32,36"},{"letter":"c","type":"maj7","keyNumbers":"28,32,35,39"},{"letter":"c","type":7,"keyNumbers":"28,32,35,38"},{"letter":"c","type":"m7","keyNumbers":"28,31,35,38"},{"letter":"c","type":"d7","keyNumbers":"28,31,34,37"},{"letter":"c","type":"add6","keyNumbers":"28,32,35,37"},{"letter":"c#,db","type":"major","keyNumbers":"29,33,36"},{"letter":"c#,db","type":"minor","keyNumbers":"29,32,36"},{"letter":"c#,db","type":"diminished","keyNumbers":"29,32,35"},{"letter":"c#,db","type":"augmented","keyNumbers":"29,33,37"},{"letter":"c#,db","type":"maj7","keyNumbers":"29,33,36,40"},{"letter":"c#,db","type":7,"keyNumbers":"29,33,36,39"},{"letter":"c#,db","type":"m7","keyNumbers":"29,32,36,39"},{"letter":"c#,db","type":"d7","keyNumbers":"29,32,35,38"},{"letter":"c#,db","type":"add6","keyNumbers":"29,33,36,38"}]
