@@ -75,9 +75,7 @@
 
       case (document.getElementById("interval").checked):
 
-        var whiteNotes = eligibleNotes.filter(function(it){ return !isBlack(it); });
-
-        var randomNote = getRandomNote(whiteNotes);
+        var randomNote = getRandomNote(eligibleNotes);
         var randomInterval = 1 + Math.floor(Math.random() * 7);
 
         var noteAtInterval = eligibleNotes.find(function(it){
@@ -86,12 +84,14 @@
 
         if(!noteAtInterval){
           noteAtInterval = eligibleNotes.find(function(it){
-            return it.keyPosition === (randomNote.keyPosition - randomInterval);
+            return it.keyPosition === Math.ceil(randomNote.keyPosition + randomInterval);
           });
         }
 
-        activeNotes.push(randomNote);
-        activeNotes.push(noteAtInterval);
+        if(noteAtInterval){
+          activeNotes.push(randomNote);
+          activeNotes.push(noteAtInterval);
+        }
 
         break;
 
