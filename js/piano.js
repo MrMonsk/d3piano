@@ -2,12 +2,21 @@
 
   // GLOBALS /////////////////////////////////////////////////////////////////
 
+  // artistic
   var keyHeight = 100;
   var keyWidth = keyHeight * .2;
   var blackKeyHeight = keyHeight * 0.65;
   var blackKeyWidth = keyWidth * 0.5;
   var rounding = keyWidth * 0.1;
+
+  // configuration
   var treble = d3.range(21,69);
+  var minKeyNumber = 20;
+  var maxKeyNumber = 65;
+
+  var eligibleNotes = notes.filter(function(it){
+    return it.keyNumber > minKeyNumber && it.keyNumber < maxKeyNumber
+  });
 
   var sortedNoteData = notes.sort(function(a, b){
     return (isBlack(b)) ? -1 : 1;
@@ -25,6 +34,10 @@
     return (note.keyPosition % 1) === 0.5;
   }
 
+  function getRandomNote(notes){
+    return notes[Math.floor(Math.random() * notes.length)];
+  }
+
   // LISTENERS ///////////////////////////////////////////////////////////////
 
   document.getElementById("clear").onclick = clearActiveNotes;
@@ -40,21 +53,47 @@
 
     clearActiveNotes();
 
-    if(document.getElementById("chord").checked){
+    switch(true){
 
-      var randomChord = chords[Math.floor(Math.random() * chords.length)];
+      case (document.getElementById("chord").checked):
 
-      randomChord.keyNumbers.split(",").forEach(function(keyNumber){
-        activeNotes.push(notes.find(function(it){ return it.keyNumber == keyNumber; }));
-      });
+        var randomChord = chords[Math.floor(Math.random() * chords.length)];
 
-    } else {
+        randomChord.keyNumbers.split(",").forEach(function(keyNumber){
+          activeNotes.push(notes.find(function(it){ return it.keyNumber == keyNumber; }));
+        });
 
-      var eligibleNotes = notes.filter(function(it){ return it.keyNumber > 20 && it.keyNumber < 65 });
+        break;
 
-      for(var i = 0; i < (Math.random() * 3); i ++){
-        activeNotes.push(eligibleNotes[Math.floor(Math.random() * eligibleNotes.length)])
-      }
+      case (document.getElementById("note").checked):
+
+        for(var i = 0; i < (Math.random() * 3); i ++){
+          activeNotes.push(getRandomNote(eligibleNotes));
+        }
+
+        break;
+
+      case (document.getElementById("interval").checked):
+
+        var whiteNotes = eligibleNotes.filter(function(it){ return !isBlack(it); });
+
+        var randomNote = getRandomNote(whiteNotes);
+        var randomInterval = 1 + Math.floor(Math.random() * 7);
+
+        var noteAtInterval = eligibleNotes.find(function(it){
+          return it.keyPosition === (randomNote.keyPosition + randomInterval);
+        });
+
+        if(!noteAtInterval){
+          noteAtInterval = eligibleNotes.find(function(it){
+            return it.keyPosition === (randomNote.keyPosition - randomInterval);
+          });
+        }
+
+        activeNotes.push(randomNote);
+        activeNotes.push(noteAtInterval);
+
+        break;
 
     }
 
@@ -98,6 +137,14 @@
 
     document.getElementById("chordRoot").value = (activeChord) ? activeChord.letter : "";
     document.getElementById("chordType").value = (activeChord) ? activeChord.type : "";
+
+    var currentInterval;
+
+    if(activeNotes.length === 2){
+      currentInterval = 1 + Math.abs(Math.floor(activeNotes[1].keyPosition) - Math.floor(activeNotes[0].keyPosition));
+    }
+
+    document.getElementById("currentInterval").value = (currentInterval && currentInterval < 9) ? currentInterval : "";
 
   }
 
@@ -220,7 +267,7 @@
 
     var svg = d3.select("svg#piano").attr({
 
-      width: keyWidth * sortedNoteData.filter(function(note){ return !note.isBlack; }).length,
+      width: keyWidth * sortedNoteData.filter(function(note){ return !isBlack(note); }).length,
       height: keyHeight
 
     });
