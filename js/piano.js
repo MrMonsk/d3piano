@@ -10,7 +10,7 @@
   var treble = d3.range(21,69);
 
   var sortedNoteData = notes.sort(function(a, b){
-    return (b.isBlack) ? -1 : 1;
+    return (isBlack(b)) ? -1 : 1;
   });
 
   // STATE ///////////////////////////////////////////////////////////////////
@@ -18,6 +18,12 @@
   var activeNotes = [];
   var hoveredNote = null;
   var mouseIsDown = false;
+
+  // HELPERS /////////////////////////////////////////////////////////////////
+
+  function isBlack(note){
+    return (note.keyPosition % 1) === 0.5;
+  }
 
   // LISTENERS ///////////////////////////////////////////////////////////////
 
@@ -229,13 +235,14 @@
         ry: rounding,
         y: 0,
         x: function(d, i) {
-          return d.keyPosition * keyWidth;
+          var keyPositionOffset = (isBlack(d)) ? 0.25 : 0;
+          return (d.keyPosition + keyPositionOffset) * keyWidth;
         },
         width:  function(d,i){
-          return (d.isBlack) ? blackKeyWidth : keyWidth;
+          return (isBlack(d)) ? blackKeyWidth : keyWidth;
         },
         height: function(d,i){
-          return (d.isBlack) ? blackKeyHeight : keyHeight;
+          return (isBlack(d)) ? blackKeyHeight : keyHeight;
         },
         stroke: "#AAAAAA"
 
@@ -270,7 +277,7 @@
             return "#ccccff";
           }
 
-          if(d.isBlack){
+          if(isBlack(d)){
             return (d === hoveredNote) ? '#444444' : '#000000';
           } else {
             return (d === hoveredNote) ? '#f2f2f2' : '#ffffff';
