@@ -138,13 +138,26 @@
     document.getElementById("chordRoot").value = (activeChord) ? activeChord.letter : "";
     document.getElementById("chordType").value = (activeChord) ? activeChord.type : "";
 
-    var currentInterval;
+    var numSemitones;
 
     if(activeNotes.length === 2){
-      currentInterval = 1 + Math.abs(Math.floor(activeNotes[1].keyPosition) - Math.floor(activeNotes[0].keyPosition));
+      numSemitones = Math.abs(activeNotes[1].keyNumber - activeNotes[0].keyNumber);
     }
 
-    document.getElementById("currentInterval").value = (currentInterval && currentInterval < 9) ? currentInterval : "";
+    if(numSemitones && numSemitones < 13){
+
+      var interval = semitones.find(function(it){
+        return it.semitones === numSemitones
+      });
+
+      document.getElementById("semitones").value = numSemitones;
+      document.getElementById("currentInterval").value = interval.name;
+
+    } else {
+
+      document.getElementById("semitones").value = document.getElementById("currentInterval").value = "";
+
+    }
 
   }
 
