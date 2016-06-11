@@ -75,18 +75,16 @@
 
       case (document.getElementById("interval").checked):
 
-        var whiteNotes = eligibleNotes.filter(function(it){ return !isBlack(it); });
-
-        var randomNote = getRandomNote(whiteNotes);
-        var randomInterval = 1 + Math.floor(Math.random() * 7);
+        var randomNote = getRandomNote(eligibleNotes);
+        var randomNumOfSemitones = Math.floor(Math.random() * 13);
 
         var noteAtInterval = eligibleNotes.find(function(it){
-          return it.keyPosition === (randomNote.keyPosition + randomInterval);
+          return it.keyNumber === (randomNote.keyNumber + randomNumOfSemitones);
         });
 
         if(!noteAtInterval){
           noteAtInterval = eligibleNotes.find(function(it){
-            return it.keyPosition === (randomNote.keyPosition - randomInterval);
+            return it.keyNumber === (randomNote.keyNumber - randomNumOfSemitones);
           });
         }
 
